@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title></title>
+        <style>
+            .wrapper {
+                border: 2px solid black;
+                width: 1000px;
+                height: 1000px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrapper">
+            <div class="input">
+                <h1>투두리스트</h1>
+                <form id="memo">
+                    <textarea name="contents" cols="30" rows="10"></textarea>
+                    <button class="button">등록</button>
+                </form>
+            </div>
+            <div id="output">
+                <h2>내용</h2>
+                <ol class="output-content"></ol>
+            </div>
+        </div>
+        <script>
+            const memoInput = document.querySelector("#memo");
+            const memoOutput = document.querySelector("#output");
+            const outputContent = document.querySelector(".output-content");
+
+            // 페이지 로드시 로컬 리스트 마크업 반영
+            for (i in localStorage) {
+                if (
+                    i !== "clear" &&
+                    i !== "getItem" &&
+                    i !== "key" &&
+                    i !== "length" &&
+                    i !== "removeItem" &&
+                    i !== "setItem"
+                ) {
+                    let addLi = document.createElement("li");
+                    outputContent.appendChild(addLi);
+                    addLi.innerHTML = localStorage.getItem(i);
+                }
+            }
+
+            // 로컬에 리스트 추가
+            memoInput.addEventListener("submit", (e) => {
+                e.preventDefault();
+                let memocon = memoInput.elements.contents;
+                localStorage.setItem(memocon.value, memocon.value);
+                console.log("돈다");
+                addContent();
+                console.log(memocon.value);
+                memocon.value = "";
+            });
+
+            // 실시간 마크업 리스트 추가
+            function addContent() {
+                console.log("된다");
+                let addLi = document.createElement("li");
+                outputContent.appendChild(addLi);
+                addLi.innerHTML = localStorage.getItem(memocon.value);
+            }
+
+            memoOutput.addEventListener("click", (e) => {
+                for (i = 0; i < localStorage.length; i++) {
+                    if (localStorage.getItem(i) == e.target.innerHTML) {
+                        localStorage.removeItem(i);
+                        e.target.remove();
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

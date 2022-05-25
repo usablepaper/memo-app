@@ -31,39 +31,40 @@
             const inputContainer = document.querySelector("#input-container");
             const outputContainer = document.querySelector("#output-container");
             const outputContent = document.querySelector(".output-content");
-            let contentsArray = [];
 
             // 페이지 로드시 로컬 리스트 마크업 반영
-            function getMemo() {
-                if (localStorage.getItem("reservedMemo") !== null) {
-                    contentsArray = localStorage
-                        .getItem("reservedMemo")
-                        .split(",");
-                    contentsArray.forEach((content) => {
-                        addContent(content);
-                    });
+            for (i = 0; i < localStorage.length; i++) {
+                if (!localStorage.getItem(i)) {
+                } else {
+                    let addLi = document.createElement("li");
+                    outputContent.appendChild(addLi);
+                    addLi.innerHTML = localStorage.getItem(i);
                 }
             }
-            getMemo();
-
             // 로컬에 리스트 추가
             inputContainer.addEventListener("submit", (e) => {
-                // getMemo();
                 e.preventDefault();
                 let inputArea = inputContainer.elements.contents;
-                localStorage.setItem("memo", inputArea.value);
-                contentsArray.push(localStorage.getItem("memo"));
+                localStorage.setItem(localStorage.length, inputArea.value);
                 inputArea.value = "";
-                localStorage.setItem("reservedMemo", contentsArray);
-                addContent(localStorage.getItem("memo"));
+                addContent();
             });
-
             // 실시간 마크업 리스트 추가
-            function addContent(content) {
-                const addLi = document.createElement("li");
+            function addContent() {
+                let addLi = document.createElement("li");
                 outputContent.appendChild(addLi);
-                addLi.innerHTML = content;
+                addLi.innerHTML = localStorage.getItem(localStorage.length - 1);
+                let localLength = localStorage.length;
+                outputContainer.addEventListener("click", (e) => {
+                    for (i = 0; i < localLength; i++) {
+                        if (localStorage.getItem(i) == e.target.innerHTML) {
+                            localStorage.removeItem(i);
+                            e.target.remove();
+                        }
+                    }
+                });
             }
+            // 이렇게 하면 뒤에서 부터 지우는 것 밖에 못한다...다시해라
         </script>
     </body>
 </html>
