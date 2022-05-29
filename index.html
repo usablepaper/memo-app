@@ -16,9 +16,10 @@
     <body>
         <div class="wrapper">
             <div class="input">
-                <h1>투두리스트</h1>
+                <h1>내 메모</h1>
+                <button class="delete-all">전체삭제</button>
                 <form id="input-container">
-                    <textarea name="contents" cols="30" rows="10"></textarea>
+                    <input name="contents" cols="30" rows="10"></input>
                     <button class="button">등록</button>
                 </form>
             </div>
@@ -32,38 +33,99 @@
             const outputContainer = document.querySelector("#output-container");
             const outputContent = document.querySelector(".output-content");
             let contentsArray = [];
+            let dateArray = [];
 
             // 페이지 로드시 로컬 리스트 마크업 반영
             function getMemo() {
-                if (localStorage.getItem("reservedMemo") !== null) {
+                if (
+                    localStorage.getItem("reservedMemo") !== null &&
+                    localStorage.getItem("reservedMemo") !== ""
+                ) {
                     contentsArray = localStorage
                         .getItem("reservedMemo")
                         .split(",");
-                    contentsArray.forEach((content) => {
-                        addContent(content);
-                    });
+                    dateArray = localStorage.getItem("reservedDate").split(",");
+                    for (i = 0; i < contentsArray.length; i++) {
+                        let content = contentsArray[i];
+                        let date = dateArray[i];
+                        addContent(content, date);
+                    }
                 }
             }
             getMemo();
 
             // 로컬에 리스트 추가
             inputContainer.addEventListener("submit", (e) => {
-                // getMemo();
                 e.preventDefault();
+                let date = new Date();
                 let inputArea = inputContainer.elements.contents;
-                localStorage.setItem("memo", inputArea.value);
-                contentsArray.push(localStorage.getItem("memo"));
-                inputArea.value = "";
-                localStorage.setItem("reservedMemo", contentsArray);
-                addContent(localStorage.getItem("memo"));
+                if (inputArea.value === "") {
+                    alert("내용을 입력해 주세요");
+                } else {
+                    localStorage.setItem("memo", inputArea.value);
+                    localStorage.setItem("date", date);
+                    contentsArray.push(localStorage.getItem("memo"));
+                    dateArray.push(localStorage.getItem("date"));
+                    inputArea.value = "";
+                    localStorage.setItem("reservedMemo", contentsArray);
+                    localStorage.setItem("reservedDate", dateArray);
+                    addContent(
+                        localStorage.getItem("memo"),
+                        localStorage.getItem("date")
+                    );
+                }
             });
 
             // 실시간 마크업 리스트 추가
-            function addContent(content) {
+            function addContent(content, date) {
                 const addLi = document.createElement("li");
                 outputContent.appendChild(addLi);
-                addLi.innerHTML = content;
+                addLi.classList.add("content-list");
+                addLi.textContent = content;
+                const addSpan = document.createElement("span");
+                addLi.appendChild(addSpan);
+                addSpan.textContent = date;
+                const addButton = document.createElement("button");
+                addLi.appendChild(addButton);
+                addButton.classList.add("delete-button");
+                addButton.textContent = "x";
             }
+
+            // 삭제
+            outputContent.addEventListener("click", (e) => {
+                const deleteButton =
+                    document.querySelectorAll(".delete-button");
+                if (e.target.nodeName == "BUTTON") {
+                    deleteButton.forEach((button, index) => {
+                        if (button === e.target) {
+                            e.target.parentNode.remove();
+                            deleteThings("reservedMemo", contentsArray, index);
+                            deleteThings("reservedDate", dateArray, index);
+                        }
+                    });
+                }
+            });
+
+            function deleteThings(local, array, index) {
+                array.splice(index, 1);
+                localStorage.setItem(local, array);
+            }
+
+            // 일괄 삭제
+
+            const deleteAllButton = document.querySelector(".delete-all");
+            deleteAllButton.addEventListener("click", () => {
+                contentsArray = [];
+                dateArray = [];
+                localStorage.setItem("reservedMemo", contentsArray);
+                localStorage.setItem("reservedDate", dateArray);
+
+                document.querySelector('.output-content').innerHTML = '';
+            });
+
+            // 날짜, 시간, 요일 변환하여 반영하기
+
+            // 최근 삭제 되살리기 구현
         </script>
     </body>
 </html>
